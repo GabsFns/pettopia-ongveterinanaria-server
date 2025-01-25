@@ -14,7 +14,7 @@ services:
     depends_on:
       - db
     entrypoint: >
-      sh -c "./wait-for-it.sh db:3306 -- java -jar /app/app.jar"
+      sh -c "./wait-for-it.sh db:3306 --timeout=60 --strict -- java -jar /app/app.jar"
     networks:
       - backend
 
@@ -26,9 +26,9 @@ services:
       MYSQL_ROOT_PASSWORD: "1234"
       MYSQL_DATABASE: "pettopia"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
-      interval: 10s
-      retries: 5
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
+      interval: 5s
+      retries: 10
     volumes:
       - db_data:/var/lib/mysql
     networks:
