@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  db:
+    image: mysql:8.0.33
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: "pettopia"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
+      interval: 2s
+      retries: 15
+      timeout: 2s
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+
   app:
     build:
       context: .
@@ -14,23 +31,7 @@ services:
     depends_on:
       - db
     entrypoint: >
-      sh -c "./wait-for-it.sh db:3306 --timeout=60 --strict -- java -jar /app/app.jar"
-    networks:
-      - backend
-
-  db:
-    image: mysql:8.0.33
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "1234"
-      MYSQL_DATABASE: "pettopia"
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
-      interval: 5s
-      retries: 10
-    volumes:
-      - db_data:/var/lib/mysql
+      sh -c "./wait-for-it.sh db:3306 --timeout=90 --strict -- java -jar /app/app.jar"
     networks:
       - backend
 
