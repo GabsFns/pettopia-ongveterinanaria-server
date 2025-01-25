@@ -12,8 +12,9 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+    entrypoint: >
+      sh -c "./wait-for-it.sh db:3306 -- java -jar /app/app.jar"
     networks:
       - backend
 
