@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: "1234"
       MYSQL_DATABASE: "pettopia"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
       interval: 2s
       retries: 15
       timeout: 2s
@@ -29,7 +29,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     entrypoint: >
       sh -c "./wait-for-it.sh db:3306 --timeout=90 --strict -- java -jar /app/app.jar"
     networks:

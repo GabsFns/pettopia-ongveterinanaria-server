@@ -12,6 +12,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
+import org.apache.commons.io.IOUtils;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class AdministradorServices {
@@ -190,9 +193,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
+
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -300,9 +307,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
+
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -410,9 +421,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
+
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -516,9 +531,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
+
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -637,9 +656,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
+
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -756,9 +779,13 @@ public class AdministradorServices {
         headerTable.setWidths(new int[]{1, 3});
 
         PdfPCell logoCell = new PdfPCell();
-        Image logo = Image.getInstance("src/main/resources/images/iconPettopia.png");
-        logo.scaleToFit(120, 120);
-        logoCell.addElement(logo);
+
+        InputStream logoStream = getClass().getClassLoader().getResourceAsStream("images/iconPettopia.png");
+        if (logoStream != null) {
+            Image logo = Image.getInstance(IOUtils.toByteArray(logoStream));
+            logo.scaleToFit(120, 120);
+            logoCell.addElement(logo);
+        }
         logoCell.setBorder(Rectangle.NO_BORDER);
         logoCell.setVerticalAlignment(Element.ALIGN_TOP);
         headerTable.addCell(logoCell);
@@ -950,11 +977,11 @@ public class AdministradorServices {
         chart.getStyler().setDecimalPattern("#"); // Números inteiros
 
         // Verificar se ambos os gráficos estão vazios e, se sim, exibir gráfico vazio
-        if (valoresAdocoes.stream().allMatch(v -> v == 0) && valoresDoacoes.stream().allMatch(v -> v == 0)) {
-            // Exibir gráfico sem registros, mas com a estrutura
-            chart.addSeries("Adoções", mesesOrdenados, valoresAdocoes); // Série vazia
-            chart.addSeries("Doações", mesesOrdenados, valoresDoacoes); // Série vazia
-        }
+//        if (valoresAdocoes.stream().allMatch(v -> v == 0) && valoresDoacoes.stream().allMatch(v -> v == 0)) {
+//            // Exibir gráfico sem registros, mas com a estrutura
+//            chart.addSeries("Adoções", mesesOrdenados, valoresAdocoes); // Série vazia
+//            chart.addSeries("Doações", mesesOrdenados, valoresDoacoes); // Série vazia
+//        }
 
         return BitmapEncoder.getBufferedImage(chart);
     }
@@ -1007,15 +1034,9 @@ public class AdministradorServices {
         return BitmapEncoder.getBufferedImage(chart);
     }
 
-
     public BufferedImage gerarGraficoDoacoesDinheiro() {
         // Buscar todas as doações em dinheiro
         List<DinheiroModel> dinheiro = dinheiroRepository.findAll();
-
-        // Verificar se existem doações
-        if (dinheiro.isEmpty()) {
-            return gerarGraficoVazio("Sem Dados de Doações em Dinheiro");
-        }
 
         // Mapear os meses das doações em dinheiro para os valores
         Map<String, Double> dadosDinheiro = dinheiro.stream()
@@ -1074,9 +1095,41 @@ public class AdministradorServices {
         return BitmapEncoder.getBufferedImage(chart);
     }
 
-
     private BufferedImage gerarGraficoVazio(String mensagem) {
-        // Implementação do gráfico vazio com uma mensagem
-        return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB); // Placeholder vazio
+        // Criar gráfico com estrutura visível
+        XYChart chart = new XYChartBuilder()
+                .width(660)
+                .height(250)
+                .theme(Styler.ChartTheme.Matlab)
+                .build();
+
+        // Criar lista de valores zerados
+        List<Double> valoresZerados = Collections.nCopies(12, 0.0);
+
+        // Adicionar série com valores zerados
+        chart.addSeries(mensagem,
+                IntStream.rangeClosed(1, 12).asDoubleStream().toArray(),
+                valoresZerados.stream().mapToDouble(Double::doubleValue).toArray());
+
+        // Configurar estilo do gráfico
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.decode("#f9f9f9"));
+        chart.getStyler().setPlotGridLinesColor(Color.BLACK);
+        chart.getStyler().setAxisTickLabelsColor(Color.BLACK);
+        chart.getStyler().setXAxisTitleColor(Color.BLACK);
+        chart.getStyler().setYAxisTitleColor(Color.BLACK);
+        chart.getStyler().setLegendBorderColor(Color.WHITE);
+        chart.getStyler().setLegendBackgroundColor(Color.WHITE);
+        chart.getStyler().setSeriesColors(new Color[]{Color.decode("#14999a")});
+        chart.getStyler().setChartTitleVisible(false);
+        chart.getStyler().setLegendVisible(true);
+        chart.getStyler().setXAxisTitleVisible(true);
+        chart.getStyler().setYAxisTitleVisible(false);
+
+        // Configurar o título do eixo X
+        chart.setXAxisTitle("Meses");
+
+        // Gerar e retornar a imagem do gráfico
+        return BitmapEncoder.getBufferedImage(chart);
     }
 }
