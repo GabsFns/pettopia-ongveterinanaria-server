@@ -22,6 +22,11 @@ public class SecurityConfig { //configuracao do spring security
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().permitAll() // Permite acesso a todos os endpoints
                 )
                 .csrf().disable() // Desativa a proteção CSRF (não recomendado para produção)
@@ -36,5 +41,4 @@ public class SecurityConfig { //configuracao do spring security
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    }
-
+}

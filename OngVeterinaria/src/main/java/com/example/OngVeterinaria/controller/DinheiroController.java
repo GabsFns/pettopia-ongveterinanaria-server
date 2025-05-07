@@ -8,6 +8,11 @@ import com.mercadopago.resources.Payment;
 import com.mercadopago.resources.Preference;
 import com.mercadopago.resources.datastructures.preference.BackUrls;
 import com.mercadopago.resources.datastructures.preference.Item;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +37,14 @@ public class DinheiroController {
     @Autowired
     private DinheiroServices dinheiroService;
 
+    @Operation(
+            summary = "Criar uma preferência de pagamento no Mercado Pago",
+            description = "Cria uma preferência de pagamento para doações usando o Mercado Pago, com a possibilidade de associar a doação a um cliente, se estiver logado."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preferência criada com sucesso", content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao criar a preferência de pagamento")
+    })
     @PostMapping("/criar-preferencia")
     public Map<String, String> criarPreferencia(@RequestBody Map<String, Object> request) throws MPException {
         Double valor = Double.parseDouble(request.get("valor").toString());
@@ -76,37 +89,29 @@ public class DinheiroController {
         return response;
     }
 
-
-    //NOTIFICAO PARA PROCESSAMENTO DE GRAVCACAO NO BANCO, EM PROCESSO
-
-//    @PostMapping("/webhook")
-//    public void handlePaymentNotification(@RequestBody String jsonNotification) throws MPException {
-//        // Configura o Mercado Pago com o access_token para verificar o pagamento
-//        MercadoPago.SDK.setAccessToken(mercadoPagoAccessToken);
-//
-//        // Parseia a notificação para obter o id do pagamento
-//        Payment payment = Payment.findById(jsonNotification);
-//
-//        // Verifica o status do pagamento
-//        if (payment != null && "approved".equals(payment.getStatus())) {
-//            // Salva a doação no banco apenas quando o pagamento for aprovado
-//            Double valor = Double.valueOf(payment.getTransactionAmount());
-//            dinheiroService.salvarDoacao(valor);
-//        } else {
-//            // Lidar com o caso em que o pagamento não foi aprovado, se necessário
-//            System.out.println("Pagamento não aprovado ou não encontrado.");
-//        }
-//    }
-
+    @Operation(
+            summary = "Confirmação de pagamento bem-sucedido",
+            description = "Exibe uma mensagem de sucesso após o pagamento ser realizado com sucesso no Mercado Pago."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pagamento realizado com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro interno no processo de confirmação")
+    })
     @GetMapping("/success")
     public String successPayment() {
         return "Pagamento realizado com sucesso!";
     }
 
+    @Operation(
+            summary = "Falha no pagamento",
+            description = "Exibe uma mensagem de erro caso o pagamento não seja realizado com sucesso no Mercado Pago."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Falha no pagamento"),
+            @ApiResponse(responseCode = "500", description = "Erro interno no processo de falha")
+    })
     @GetMapping("/failure")
     public String failurePayment() {
         return "Falha no pagamento.";
     }
-
-
 }

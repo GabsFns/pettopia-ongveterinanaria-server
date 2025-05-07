@@ -11,13 +11,18 @@ import com.example.OngVeterinaria.repository.DenunciaRepository;
 import com.example.OngVeterinaria.repository.FuncionarioRepository;
 import com.example.OngVeterinaria.repository.PedidoRepository;
 import com.example.OngVeterinaria.services.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
@@ -67,7 +72,10 @@ public class AdministradorController implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Verificando se administrador já existe...");
 
-        if (funcionarioRepository.findByEmail("admin@gmail.com") == null) {
+        // Verifica se já existe um administrador
+        boolean adminExistente = funcionarioRepository.countByTipoFuncionario(TipoFuncionario.ADMINISTRADOR) > 0;
+
+        if (!adminExistente) {
             FuncionarioModel administrador = new FuncionarioModel();
             administrador.setNome_funcionario("Administrador");
             administrador.setEmail("admin@gmail.com");
@@ -82,12 +90,28 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Deletar um funcionário",
+            description = "Deleta um funcionário específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Funcionário deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
+    })
     @DeleteMapping("/deletarFuncionario/{idFuncionario}")
     public ResponseEntity<Void> deletarFuncionario(@PathVariable Long idFuncionario) {
         boolean deletado = administradorServices.deletarFuncionario(idFuncionario);
         return deletado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
+    @Operation(
+            summary = "Cadastrar um funcionário",
+            description = "Cadastra um funcionário"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Funcionário cadastrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao cadastrar Funcionario")
+    })
     //Cadastrar Funcionario
     @PostMapping("/cadastrar/funcionario")
     public ResponseEntity<?> cadastrarFuncionario(@RequestBody FuncionarioModel funcionarioModel){
@@ -100,6 +124,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Atualizar um funcionário",
+            description = "Atualiza um funcionário específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Funcionário atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
+    })
     @PutMapping("/atualizarFuncionario/{id}")
     public ResponseEntity<?> atualizarFuncionario(@PathVariable Long id, @Valid @RequestBody FuncionarioModel funcionarioAtualizado) {
         // Recupera o funcionário existente no banco de dados
@@ -121,6 +153,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Busca um comprovante",
+            description = "Busca um comprovante de renda específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Comprovante encontrado"),
+            @ApiResponse(responseCode = "404", description = "Comprovante não encontrado")
+    })
     //Pesquisar Comprovante na tabela Desktop
     @GetMapping("/buscar/comprovante/{id}")
     public ResponseEntity<ComprovanteRendaModel> buscarComprovantePorId(@PathVariable Long id) {
@@ -128,28 +168,68 @@ public class AdministradorController implements CommandLineRunner {
         return comprovante.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Listar funcionários",
+            description = "Lista todos os funcionários"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Funcionário listados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao listar funcionários")
+    })
     @GetMapping("/listar/funcionario")
     public List<FuncionarioModel> listarFuncionario(){
         return funcionarioServices.listarFuncionario();
     }
 
+    @Operation(
+            summary = "Listar clientes",
+            description = "Lista todos os clientes"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Clientes listados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao listar clientes")
+    })
     @GetMapping("/listar/cliente")
     public List<ClienteModel> listarCliente(){
         return clienteServices.listarCliente();
     }
 
+    @Operation(
+            summary = "Cancelar um pedido de doação",
+            description = "Cancela um pedido de doação específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Pedido de doação atualizado para 'CANCELADO'"),
+            @ApiResponse(responseCode = "404", description = "Erro ao cancelar o pedido de doação")
+    })
     @PutMapping("/cancelarPedido/{id}")
     public ResponseEntity<?> cancelarPedido(@PathVariable Long id) {
         boolean atualizado = administradorServices.cancelarPedido(id);
         return atualizado ? ResponseEntity.ok("Pedido de doação atualizado para 'CANCELADO'") : ResponseEntity.status(404).body("Pedido de doação não encontrado.");
     }
 
+    @Operation(
+            summary = "Aceita um pedido de doação",
+            description = "Cancela um pedido de doação específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Pedido de doação atualizado para 'ANDAMENTO'"),
+            @ApiResponse(responseCode = "404", description = "Erro ao cancelar pedido de doação")
+    })
     @PutMapping("/aceitarPedido/{id}")
     public ResponseEntity<?> aceitarPedido(@PathVariable Long id) {
         boolean atualizado = administradorServices.aceitarPedido(id);
-        return atualizado ? ResponseEntity.ok("Pedido atualizado para 'ANDAMENTO'") : ResponseEntity.status(404).body("Pedido de doação não encontrado.");
+        return atualizado ? ResponseEntity.ok("Pedido de doação atualizado para 'ANDAMENTO'") : ResponseEntity.status(404).body("Pedido de doação não encontrado.");
     }
 
+    @Operation(
+            summary = "Buscar cliente",
+            description = "Busca um cliente específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Cliente encontrado"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     //Pesquisar Usuario na tabela Desktop
     @GetMapping("/cliente/{id}")
     public ResponseEntity<ClienteModel> buscarClientePorId(@PathVariable Long id) {
@@ -157,6 +237,14 @@ public class AdministradorController implements CommandLineRunner {
         return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Buscar funcionário",
+            description = "Busca um funcionário específico com base no ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "funcionário encontrado"),
+            @ApiResponse(responseCode = "404", description = "funcionário não encontrado")
+    })
     //Pesquisar Usuario na tabela Desktop
     @GetMapping("/buscarFuncionario/{id}")
     public ResponseEntity<FuncionarioModel> buscarFuncionarioPorId(@PathVariable Long id) {
@@ -182,6 +270,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Buscar comprovante",
+            description = "Busca um comprovante específico com base no ID e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Comprovante encontrado"),
+            @ApiResponse(responseCode = "404", description = "Comprovante não encontrado")
+    })
     // Endpoint para buscar o comprovante por ID e retornar como PDF
     @GetMapping("/comprovante/{id}")
     public ResponseEntity<byte[]> baixarComprovante(@PathVariable Long id) {
@@ -202,6 +298,14 @@ public class AdministradorController implements CommandLineRunner {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Validar comprovante de renda",
+            description = "Validar comprovante de renda específico com base no ID e retorna o comprovante do pedido de adoção como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Comprovante validado"),
+            @ApiResponse(responseCode = "404", description = "Documento não encontrado")
+    })
     @PutMapping("/validarComprovante/{idDocumento}")
     public PedidoModel validarAdocao(@PathVariable Long idDocumento) throws Exception {
         // Busca o comprovante pelo ID
@@ -247,6 +351,14 @@ public class AdministradorController implements CommandLineRunner {
         return adocao;
     }
 
+    @Operation(
+            summary = "Negar comprovante",
+            description = "Nega um comprovante específico com base no ID e defini um período para exclusão"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Comprovante negado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Comprovante não negado")
+    })
     @PutMapping("/negarComprovante/{idDocumento}")
     public ComprovanteRendaModel negarComprovante(@PathVariable Long idDocumento) throws Exception {
         // Busca o comprovante pelo ID
@@ -268,6 +380,14 @@ public class AdministradorController implements CommandLineRunner {
         return comprovanteRendaRepository.save(documento);
     }
 
+    @Operation(
+            summary = "Gerar relatorio de doações",
+            description = "Gera um relatório contendo todos os pedidos de doação e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioDoacoes")
     public ResponseEntity<DoacaoRelatorioDTO> gerarRelatorioDoacoes(@RequestBody DoacaoRelatorioDTO relatorioDTO) {
         try {
@@ -285,6 +405,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Gerar relatorio de adoções",
+            description = "Gera um relatório contendo todos os pedidos de adoção e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioAdocoes")
     public ResponseEntity<AdocaoRelatorioDTO> gerarRelatorioAdocoes(@RequestBody AdocaoRelatorioDTO relatorioDTO) {
         try {
@@ -302,6 +430,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Gerar relatorio de denúncias",
+            description = "Gera um relatório contendo todos os pedidos de denúncia e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioDenuncias")
     public ResponseEntity<DenunciaRelatorioDTO> gerarRelatorioDenuncias(@RequestBody DenunciaRelatorioDTO relatorioDTO) {
         try {
@@ -319,6 +455,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Gerar relatorio de animais cadastrados",
+            description = "Gera um relatório contendo todos os animais cadastrados e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioAnimais")
     public ResponseEntity<AnimalRelatorioDTO> gerarRelatorioAnimais(@RequestBody AnimalRelatorioDTO relatorioDTO) {
         try {
@@ -336,6 +480,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Gerar relatorio de clientes cadastrados",
+            description = "Gera um relatório contendo todos os clientes cadastrados e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioClientes")
     public ResponseEntity<ClienteRelatorioDTO> gerarRelatorioClientes(@RequestBody ClienteRelatorioDTO relatorioDTO) {
         try {
@@ -353,6 +505,14 @@ public class AdministradorController implements CommandLineRunner {
         }
     }
 
+    @Operation(
+            summary = "Gerar relatorio de funcionários cadastrados",
+            description = "Gera um relatório contendo todos os funcionários cadastrados e retorna como PDF"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @PostMapping("/gerarRelatorioFuncionarios")
     public ResponseEntity<FuncionarioRelatorioDTO> gerarRelatorioFuncionarios(@RequestBody FuncionarioRelatorioDTO relatorioDTO) {
         try {
@@ -373,6 +533,14 @@ public class AdministradorController implements CommandLineRunner {
     @Autowired
     private DenunciaRepository denunciaRepository;
 
+    @Operation(
+            summary = "Gerar gráficos de adoção, denúncia e doações",
+            description = "Gera três gráficos (adoção/doação de animais, denúncias registradas e doações em dinheiro), converte-os para imagens Base64 e retorna como um JSON."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Relatório gerado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Relatório não gerado")
+    })
     @GetMapping("/grafico")
     public ResponseEntity<Map<String, String>> obterGrafico() throws IOException {
         // Gerar os gráficos
