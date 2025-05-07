@@ -49,7 +49,6 @@ public class ClienteModel implements Serializable {
     @Column(name = "DataCadastro")
     private LocalDate data_Cadastro;
 
-
     @Column(name = "ResetToken")
     private String resetToken;
 
@@ -74,10 +73,6 @@ public class ClienteModel implements Serializable {
     public void setIdCliente(Long idCliente) {
         this.idCliente = idCliente;
     }
-
-
-
-
 
     public LocalDate getData_Cadastro() {
         return data_Cadastro;

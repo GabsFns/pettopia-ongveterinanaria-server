@@ -1,6 +1,7 @@
 package com.example.OngVeterinaria.repository;
 
 import com.example.OngVeterinaria.model.ClienteModel;
+import com.example.OngVeterinaria.model.Enum.TipoFuncionario;
 import com.example.OngVeterinaria.model.FuncionarioModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,5 @@ public interface FuncionarioRepository extends JpaRepository<FuncionarioModel, L
 //   FuncionarioModel findByEmailAndPasswordFuncionario(String email, String passwordFuncionario);
    boolean existsByEmail(String email);
    FuncionarioModel findByEmail(String email);
+   long countByTipoFuncionario(TipoFuncionario tipoFuncionario);
 }

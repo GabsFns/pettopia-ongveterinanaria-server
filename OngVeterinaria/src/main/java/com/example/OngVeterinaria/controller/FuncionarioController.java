@@ -10,6 +10,11 @@ import com.example.OngVeterinaria.repository.PedidoRepository;
 import com.example.OngVeterinaria.services.AnimalServices;
 import com.example.OngVeterinaria.services.ClienteServices;
 import com.example.OngVeterinaria.services.FuncionarioServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,24 +49,57 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioServices funcionarioServices;
 
+    @Operation(
+            summary = "Listar todos os serviços",
+            description = "Retorna uma lista de todos os serviços (pedidos) disponíveis."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de serviços retornada com sucesso", content = @Content(schema = @Schema(implementation = PedidoModel.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao listar serviços")
+    })
     @GetMapping("/ListarServicos")
     public ResponseEntity<List<PedidoModel>> listarServicos() {
         List<PedidoModel> servicos = funcionarioServices.listarServicos();
         return ResponseEntity.ok(servicos);
     }
 
+    @Operation(
+            summary = "Listar todos os animais",
+            description = "Retorna uma lista de todos os animais cadastrados."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de animais retornada com sucesso", content = @Content(schema = @Schema(implementation = AnimalModel.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao listar animais")
+    })
     @GetMapping("/ListarAnimais")
     public ResponseEntity<List<AnimalModel>> listarAnimais() {
         List<AnimalModel> animais = animalServices.listarTodosAnimais();
         return ResponseEntity.ok(animais);
     }
 
+    @Operation(
+            summary = "Listar todas as denúncias",
+            description = "Retorna uma lista de todas as denúncias registradas."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de denúncias retornada com sucesso", content = @Content(schema = @Schema(implementation = DenunciaModel.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao listar denúncias")
+    })
     @GetMapping("/Listar/Denuncias")
     public ResponseEntity<List<DenunciaModel>> listarDenuncias() {
         List<DenunciaModel> denuncias = funcionarioServices.listarTodasDenuncias();
         return ResponseEntity.ok(denuncias);
     }
 
+    @Operation(
+            summary = "Listar animais disponíveis para adoção",
+            description = "Retorna uma lista de animais disponíveis para adoção, ou uma resposta 204 se não houver animais disponíveis."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de animais para adoção retornada com sucesso", content = @Content(schema = @Schema(implementation = AnimalModel.class))),
+            @ApiResponse(responseCode = "204", description = "Nenhum animal disponível para adoção"),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao listar animais para adoção")
+    })
     // Endpoint para listar animais sem cliente vinculado
     @GetMapping("/ListarAnimaisAdocao")
     public ResponseEntity<List<AnimalModel>> listarAnimaisSemCliente() {
@@ -74,6 +112,14 @@ public class FuncionarioController {
         return ResponseEntity.ok(animaisSemCliente);  // Retorna 200 com os dados
     }
 
+    @Operation(
+            summary = "Buscar cliente por ID",
+            description = "Retorna os dados de um cliente, dado o seu ID. Retorna 404 se o cliente não for encontrado."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso", content = @Content(schema = @Schema(implementation = ClienteModel.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     //Pesquisar Usuario na tabela Desktop - FILTRO GET CLIENTE
     @GetMapping("/ClienteBuscar/{id}")
     public ResponseEntity<ClienteModel> buscarClientePorId(@PathVariable Long id) {
@@ -81,6 +127,14 @@ public class FuncionarioController {
         return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Buscar pedido de serviço por ID",
+            description = "Retorna os dados de um pedido de serviço, dado o seu ID. Retorna 404 se o pedido não for encontrado."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido de serviço encontrado com sucesso", content = @Content(schema = @Schema(implementation = PedidoModel.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido de serviço não encontrado")
+    })
     //Pesquisar pedido de serviço na tabela Desktop - FILTRO GET SERVICO
     @GetMapping("/buscarPedido/{id}")
     public ResponseEntity<PedidoModel> buscarPedidoPorId(@PathVariable Long id) {
@@ -88,6 +142,14 @@ public class FuncionarioController {
         return servico.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Obter estatísticas de serviços em andamento",
+            description = "Retorna as estatísticas de doações, adoções e denúncias em andamento."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estatísticas de serviços em andamento retornadas com sucesso", content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno ao obter estatísticas")
+    })
     @GetMapping("/EstatisticasEmAndamento")
     public ResponseEntity<Map<String, Long>> getEstatisticasEmAndamento() {
         // Contando doações e adoções em andamento
@@ -108,6 +170,14 @@ public class FuncionarioController {
         return ResponseEntity.ok(estatisticas);
     }
 
+    @Operation(
+            summary = "Login de funcionário",
+            description = "Realiza o login de um funcionário utilizando e-mail e senha."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso", content = @Content(schema = @Schema(implementation = FuncionarioModel.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
     @PostMapping("/LoginNormal")
     public ResponseEntity<?> loginNormal(@RequestBody FuncionarioModel loginRequest) {
         try {
@@ -118,6 +188,14 @@ public class FuncionarioController {
         }
     }
 
+    @Operation(
+            summary = "Validar código de comprovante de serviço",
+            description = "Valida o código do comprovante de serviço e retorna o pedido correspondente."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Código validado com sucesso", content = @Content(schema = @Schema(implementation = PedidoModel.class))),
+            @ApiResponse(responseCode = "400", description = "Código inválido")
+    })
     @PutMapping("/validarCodigoComprovante/{codigo}")
     public ResponseEntity<PedidoModel> validarCodigoComprovante(@PathVariable String codigo) {
         PedidoModel servico = funcionarioServices.validarCodigoComprovante(codigo);
@@ -129,6 +207,14 @@ public class FuncionarioController {
         return ResponseEntity.ok(servico);
     }
 
+    @Operation(
+            summary = "Concluir pedido de serviço",
+            description = "Marca um pedido de serviço como concluído."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido concluído com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Pedido não encontrado ou em status inválido")
+    })
     @PutMapping("/concluirPedido/{id}")
     public ResponseEntity<?> concluirPedido(@PathVariable Long id) {
         boolean atualizado = funcionarioServices.concluirPedido(id);
@@ -136,6 +222,15 @@ public class FuncionarioController {
                 : ResponseEntity.status(404).body("Pedido encontrado ou em status inválido.");
     }
 
+    @Operation(
+            summary = "Concluir pedido de adoção",
+            description = "Marca um pedido de adoção como concluído e vincula o animal ao cliente."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido de adoção concluído com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Pedido não em andamento ou não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro ao concluir o pedido")
+    })
     @PutMapping("/concluirPedidoAdocao/{idPedido}")
     public ResponseEntity<?> concluirPedidoAdocao(@PathVariable Long idPedido) {
         try {
@@ -152,6 +247,14 @@ public class FuncionarioController {
         }
     }
 
+    @Operation(
+            summary = "Cadastrar um novo animal",
+            description = "Cadastra um novo animal, com ou sem cliente vinculado, dependendo da disponibilidade."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Animal cadastrado com sucesso", content = @Content(schema = @Schema(implementation = AnimalModel.class))),
+            @ApiResponse(responseCode = "500", description = "Erro ao cadastrar o animal")
+    })
     @PostMapping("/cadastrar/animal")
     public ResponseEntity<AnimalModel> cadastrarAnimal(@RequestBody AnimalModel animalRequest) {
         ClienteModel cliente = null;
@@ -186,7 +289,14 @@ public class FuncionarioController {
         return ResponseEntity.ok(animal);
     }
 
-
+    @Operation(
+            summary = "Atualizar dados de um animal",
+            description = "Atualiza os dados de um animal cadastrado, caso ele exista."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Animal atualizado com sucesso", content = @Content(schema = @Schema(implementation = AnimalModel.class))),
+            @ApiResponse(responseCode = "404", description = "Animal não encontrado")
+    })
     // Atualizar um animal existente
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<AnimalModel> atualizarAnimal(
@@ -204,6 +314,14 @@ public class FuncionarioController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Deletar um animal",
+            description = "Deleta um animal dado o seu ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Animal deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Animal não encontrado")
+    })
     // Deletar um animal pelo ID
     @DeleteMapping("/deletarAnimal/{id}")
     public ResponseEntity<Void> deletarAnimal(@PathVariable Long id) {
@@ -211,6 +329,14 @@ public class FuncionarioController {
         return deletado.isPresent() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
+    @Operation(
+            summary = "Buscar denúncia por ID",
+            description = "Retorna os dados de uma denúncia, dado o seu ID. Retorna 404 se a denúncia não for encontrada."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Denúncia encontrada com sucesso", content = @Content(schema = @Schema(implementation = DenunciaModel.class))),
+            @ApiResponse(responseCode = "404", description = "Denúncia não encontrada")
+    })
     //Pesquisar DENUNCIA na tabela Desktop - FILTRO GET DENUNCIA
     @GetMapping("/Buscar/Denuncia/{id}")
     public ResponseEntity<DenunciaModel> buscarDenunciaPorId(@PathVariable Long id) {
