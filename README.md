@@ -29,10 +29,10 @@ git clone https://github.com/GabsFns/pettopia-ongveterinanaria-server.git
 
 1. Acesse o repositório no GitHub: [Clique aqui para baixar o ZIP](https://github.com/GabsFns/pettopia-ongveterinanaria-server/archive/refs/heads/main.zip).
 2. Extraia o arquivo `.zip` no seu computador.
-3. Acesse a pasta do projeto através do terminal:
+3. Acesse a pasta do projeto:
 
 ```bash
-cd pettopia-ongveterinanaria-server
+cd pettopia-ongveterinanaria-server\OngVeterinaria
 ```
 
 ---
